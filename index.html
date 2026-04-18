@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Armor Skin Tool</title>
+    <meta
+      name="description"
+      content="Convert Minecraft player skins into armor-stand statue textures for packs used alongside Armor Poser."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23271709'/%3E%3Crect x='12' y='10' width='40' height='12' fill='%23f2c077'/%3E%3Crect x='16' y='24' width='32' height='18' fill='%23d2a15b'/%3E%3Crect x='12' y='44' width='40' height='8' fill='%237b4e2b'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">ActualPug Utility Lab</p>
+          <h1>Armor Skin Tool</h1>
+          <p class="subtitle">
+            Load a Minecraft skin by username or drag in a PNG, then export a
+            ready-to-place armor-stand statue texture with a live preview before
+            download.
+          </p>
+        </div>
+
+        <div class="hero-pills" aria-label="Tool highlights">
+          <span class="hero-pill">Browser-side</span>
+          <span class="hero-pill">Classic + slim</span>
+          <span class="hero-pill">Live preview</span>
+          <span class="hero-pill hero-pill--accent">Verified 128x80 layout</span>
+        </div>
+      </header>
+
+      <section class="layout">
+        <section class="panel control-panel" aria-labelledby="setup-title">
+          <div class="panel-heading">
+            <p class="panel-kicker">Setup</p>
+            <h2 id="setup-title">Load a skin and name the export</h2>
+            <p class="panel-copy">
+              Armor Poser handles the posing. This tool exports the companion
+              `woodNNN.png` texture sheet format used by armor-stand statue packs.
+            </p>
+          </div>
+
+          <label class="field" for="username-input">
+            <span class="field-label">Minecraft name</span>
+            <div class="input-group">
+              <input
+                id="username-input"
+                type="text"
+                placeholder="actualpug"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button class="ghost-button" id="username-load" type="button">
+                Load skin
+              </button>
+            </div>
+          </label>
+
+          <label class="dropzone" id="skin-dropzone" for="skin-input">
+            <input id="skin-input" type="file" accept="image/png,image/*" hidden />
+            <span class="dropzone-badge">PNG intake</span>
+            <span class="dropzone-title">Drop a skin here or click to browse</span>
+            <span class="dropzone-copy">
+              Works with standard and slim player skins. Username lookup uses the
+              same browser-only flow as the rest of this repo.
+            </span>
+          </label>
+
+          <p class="status" id="source-status">Load a skin to generate a statue sheet.</p>
+
+          <div class="summary-grid" aria-label="Conversion summary">
+            <article class="summary-card">
+              <span class="summary-label">Detected model</span>
+              <strong id="detected-model">Waiting for skin</strong>
+            </article>
+
+            <article class="summary-card">
+              <span class="summary-label">Export size</span>
+              <strong>128 x 80 PNG</strong>
+            </article>
+          </div>
+
+          <div class="field-grid">
+            <label class="field" for="model-select">
+              <span class="field-label">Arm layout</span>
+              <select id="model-select">
+                <option value="auto" selected>Auto detect</option>
+                <option value="classic">Standard / Steve</option>
+                <option value="slim">Slim / Alex</option>
+              </select>
+              <span class="field-help" id="model-help">
+                Auto mode reads the source skin and falls back to classic when the
+                slim columns are not transparent.
+              </span>
+            </label>
+
+            <label class="field" for="filename-input">
+              <span class="field-label">Output file name</span>
+              <input
+                id="filename-input"
+                type="text"
+                value="wood001.png"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <span class="field-help" id="filename-help"></span>
+            </label>
+          </div>
+
+          <div class="action-row">
+            <button class="primary-button" id="download-button" type="button" disabled>
+              Download PNG
+            </button>
+            <span class="action-note" id="download-note">
+              The download button unlocks after a skin is loaded.
+            </span>
+          </div>
+
+          <article class="note-card" aria-label="Format note">
+            <p class="note-kicker">Compatibility note</p>
+            <p>
+              The verified downloadable armor-stand statue pack format is
+              `128x80`, not `64x155`. This exporter matches that pack's `wood.png`
+              and `woodBase` layout so the output is ready for the
+              `woodNNN.png` workflow.
+            </p>
+          </article>
+        </section>
+
+        <section class="panel preview-panel" aria-labelledby="preview-title">
+          <div class="panel-heading">
+            <p class="panel-kicker">Preview</p>
+            <h2 id="preview-title">Check the skin before you export it</h2>
+            <p class="panel-copy">
+              The source preview is normalized to Minecraft's modern 64x64 skin
+              layout, and the output preview shows the armor-stand texture sheet
+              that will be downloaded.
+            </p>
+          </div>
+
+          <div class="preview-grid">
+            <article class="preview-card">
+              <div class="preview-header">
+                <div>
+                  <p class="preview-label">Source skin</p>
+                  <h3 id="source-title">No skin loaded</h3>
+                </div>
+                <span class="preview-meta" id="source-meta">64 x 64 preview</span>
+              </div>
+
+              <div class="canvas-frame canvas-frame--square">
+                <canvas id="source-preview" width="64" height="64"></canvas>
+              </div>
+            </article>
+
+            <article class="preview-card">
+              <div class="preview-header">
+                <div>
+                  <p class="preview-label">Armor-stand sheet</p>
+                  <h3 id="output-title">Waiting for conversion</h3>
+                </div>
+                <span class="preview-meta" id="output-meta">128 x 80 texture</span>
+              </div>
+
+              <div class="canvas-frame canvas-frame--wide">
+                <canvas id="output-preview" width="128" height="80"></canvas>
+              </div>
+            </article>
+          </div>
+
+          <article class="help-card">
+            <p class="note-kicker">Pack reminder</p>
+            <p>
+              `wood.png` replaces the default armor stand texture. `wood001.png`
+              and other numbered files usually need matching `wood.properties`
+              entries inside the resource pack.
+            </p>
+          </article>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
