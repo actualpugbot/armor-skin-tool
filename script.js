@@ -21,6 +21,9 @@ const sourcePreviewContext = sourcePreview.getContext("2d");
 const outputPreviewContext = outputPreview.getContext("2d");
 
 const OUTPUT_SIZE = { width: 64, height: 155 };
+const SOURCE_LAYOUT_SIZE = { width: 64, height: 64 };
+const STANDARD_OUTPUT_Y_OFFSET = 27;
+const SLIM_OUTPUT_Y_OFFSET = OUTPUT_SIZE.height - SOURCE_LAYOUT_SIZE.height;
 
 // Source UV nets — where each part lives in the 64x64 skin
 const HEAD_NET = { x: 0, y: 0, width: 32, height: 16 };
@@ -42,7 +45,7 @@ const LEFT_ARM_SLIM_OVERLAY_NET = { x: 48, y: 48, width: 14, height: 16 };
 
 // Output UV nets — same positions as the source skin layout (armor stand model
 // uses identical UV coordinates to the player skin, in a 64x155 texture space)
-const OUTPUT_NETS = {
+const OUTPUT_NET_TEMPLATE = {
   head:                   { x: 0,  y: 0,  width: 32, height: 16 },
   headOverlay:            { x: 32, y: 0,  width: 32, height: 16 },
   body:                   { x: 16, y: 16, width: 24, height: 16 },
@@ -59,6 +62,11 @@ const OUTPUT_NETS = {
   rightArmSlimOverlay:    { x: 40, y: 32, width: 14, height: 16 },
   leftArmSlim:            { x: 32, y: 48, width: 14, height: 16 },
   leftArmSlimOverlay:     { x: 48, y: 48, width: 14, height: 16 },
+};
+
+const OUTPUT_NETS = {
+  slim: offsetNetMap(OUTPUT_NET_TEMPLATE, SLIM_OUTPUT_Y_OFFSET),
+  classic: offsetNetMap(OUTPUT_NET_TEMPLATE, STANDARD_OUTPUT_Y_OFFSET),
 };
 
 const state = {
@@ -304,6 +312,15 @@ function getActiveModel() {
   return modelSelect.value;
 }
 
+function offsetNetMap(netMap, yOffset) {
+  return Object.fromEntries(
+    Object.entries(netMap).map(([name, rect]) => [
+      name,
+      { ...rect, y: rect.y + yOffset },
+    ]),
+  );
+}
+
 function renderOutput() {
   clearCanvas(outputPreviewContext, outputPreview.width, outputPreview.height);
 
@@ -317,26 +334,27 @@ function renderOutput() {
 
   const activeModel = getActiveModel();
   const fileName = sanitizeFileName(filenameInput.value);
+  const outputNets = activeModel === "classic" ? OUTPUT_NETS.classic : OUTPUT_NETS.slim;
 
-  drawNet(outputPreviewContext, state.sourceCanvas, HEAD_NET, OUTPUT_NETS.head);
-  drawNet(outputPreviewContext, state.sourceCanvas, HEAD_OVERLAY_NET, OUTPUT_NETS.headOverlay);
-  drawNet(outputPreviewContext, state.sourceCanvas, BODY_NET, OUTPUT_NETS.body);
-  drawNet(outputPreviewContext, state.sourceCanvas, BODY_OVERLAY_NET, OUTPUT_NETS.bodyOverlay);
-  drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_LEG_NET, OUTPUT_NETS.rightLeg);
-  drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_LEG_OVERLAY_NET, OUTPUT_NETS.rightLegOverlay);
-  drawNet(outputPreviewContext, state.sourceCanvas, LEFT_LEG_NET, OUTPUT_NETS.leftLeg);
-  drawNet(outputPreviewContext, state.sourceCanvas, LEFT_LEG_OVERLAY_NET, OUTPUT_NETS.leftLegOverlay);
+  drawNet(outputPreviewContext, state.sourceCanvas, HEAD_NET, outputNets.head);
+  drawNet(outputPreviewContext, state.sourceCanvas, HEAD_OVERLAY_NET, outputNets.headOverlay);
+  drawNet(outputPreviewContext, state.sourceCanvas, BODY_NET, outputNets.body);
+  drawNet(outputPreviewContext, state.sourceCanvas, BODY_OVERLAY_NET, outputNets.bodyOverlay);
+  drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_LEG_NET, outputNets.rightLeg);
+  drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_LEG_OVERLAY_NET, outputNets.rightLegOverlay);
+  drawNet(outputPreviewContext, state.sourceCanvas, LEFT_LEG_NET, outputNets.leftLeg);
+  drawNet(outputPreviewContext, state.sourceCanvas, LEFT_LEG_OVERLAY_NET, outputNets.leftLegOverlay);
 
   if (activeModel === "slim") {
-    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_SLIM_NET, OUTPUT_NETS.rightArmSlim);
-    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_SLIM_OVERLAY_NET, OUTPUT_NETS.rightArmSlimOverlay);
-    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_SLIM_NET, OUTPUT_NETS.leftArmSlim);
-    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_SLIM_OVERLAY_NET, OUTPUT_NETS.leftArmSlimOverlay);
+    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_SLIM_NET, outputNets.rightArmSlim);
+    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_SLIM_OVERLAY_NET, outputNets.rightArmSlimOverlay);
+    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_SLIM_NET, outputNets.leftArmSlim);
+    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_SLIM_OVERLAY_NET, outputNets.leftArmSlimOverlay);
   } else {
-    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_CLASSIC_NET, OUTPUT_NETS.rightArmClassic);
-    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_CLASSIC_OVERLAY_NET, OUTPUT_NETS.rightArmClassicOverlay);
-    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_CLASSIC_NET, OUTPUT_NETS.leftArmClassic);
-    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_CLASSIC_OVERLAY_NET, OUTPUT_NETS.leftArmClassicOverlay);
+    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_CLASSIC_NET, outputNets.rightArmClassic);
+    drawNet(outputPreviewContext, state.sourceCanvas, RIGHT_ARM_CLASSIC_OVERLAY_NET, outputNets.rightArmClassicOverlay);
+    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_CLASSIC_NET, outputNets.leftArmClassic);
+    drawNet(outputPreviewContext, state.sourceCanvas, LEFT_ARM_CLASSIC_OVERLAY_NET, outputNets.leftArmClassicOverlay);
   }
 
   outputTitle.textContent = fileName;

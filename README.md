@@ -12,13 +12,15 @@ alongside Armor Poser.
 - Lets you customize the output file name, starting with `wood001.png`.
 - Exports a ready-to-save PNG directly in the browser.
 
-## Verified Format
+## Export Format
 
-After checking the actual downloadable "Armor Stand Statues" resource pack and
-its `armor_stand.jem`, the verified texture format is `128x80`, not `64x155`.
+This repo intentionally exports `64x155` `woodNNN.png` files.
 
-This tool therefore exports the `128x80` `woodNNN.png` layout used by that
-armor-stand statue pack workflow:
+The current app, preview canvas, and downloaded PNG all target that `64x155`
+layout, so the README should stay aligned with that unless the exporter code is
+changed too.
+
+This workflow assumes:
 
 - Armor Poser handles the posing.
 - The resource pack handles the custom armor-stand texture sheet.
