@@ -74,6 +74,7 @@ const state = {
   sourceLabel: "",
   detectedModel: "classic",
   loading: false,
+  modelSelectionSource: "auto",
 };
 
 sourcePreviewContext.imageSmoothingEnabled = false;
@@ -94,7 +95,7 @@ function initialize() {
       handleUsernameLoad();
     }
   });
-  modelSelect.addEventListener("change", renderOutput);
+  modelSelect.addEventListener("change", handleModelChange);
   filenameInput.addEventListener("input", () => {
     updateFilenameHelp();
     renderOutput();
@@ -218,6 +219,8 @@ async function applyLoadedImage(image, label, successMessage) {
   state.sourceCanvas = normalizedCanvas;
   state.sourceLabel = label;
   state.detectedModel = detectSkinModel(normalizedCanvas);
+  state.modelSelectionSource = "detected";
+  modelSelect.value = state.detectedModel;
 
   drawCanvas(sourcePreviewContext, normalizedCanvas, sourcePreview.width, sourcePreview.height);
   sourceTitle.textContent = label;
@@ -312,6 +315,11 @@ function getActiveModel() {
   return modelSelect.value;
 }
 
+function handleModelChange() {
+  state.modelSelectionSource = modelSelect.value === "auto" ? "auto" : "manual";
+  renderOutput();
+}
+
 function offsetNetMap(netMap, yOffset) {
   return Object.fromEntries(
     Object.entries(netMap).map(([name, rect]) => [
@@ -362,7 +370,9 @@ function renderOutput() {
   downloadNote.textContent = `Ready to export as ${fileName}.`;
   downloadButton.disabled = false;
 
-  if (modelSelect.value === "auto") {
+  if (state.modelSelectionSource === "detected") {
+    modelHelp.textContent = `Detected from skin: ${formatModelLabel(activeModel)}.`;
+  } else if (modelSelect.value === "auto") {
     modelHelp.textContent = `Auto detected ${formatModelLabel(activeModel)}.`;
   } else {
     modelHelp.textContent = `Manual override: ${formatModelLabel(activeModel)}.`;
