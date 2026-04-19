@@ -422,11 +422,7 @@ function buildFilenameHint(baseName) {
     return "Replaces the base armor stand texture.";
   }
 
-  if (/^wood.+$/i.test(baseName)) {
-    return "Convention: woodNNN.png";
-  }
-
-  return "Convention: woodNNN.png";
+  return "";
 }
 
 function formatModelLabel(model) {
