@@ -422,9 +422,8 @@ function buildFilenameHint(baseName) {
     return "Replaces the base armor stand texture.";
   }
 
-  const numberedMatch = baseName.match(/^wood(.+)$/i);
-  if (numberedMatch) {
-    return `wood.properties line: skins.${numberedMatch[1]} = ${numberedMatch[1]}`;
+  if (/^wood.+$/i.test(baseName)) {
+    return "Convention: woodNNN.png";
   }
 
   return "Convention: woodNNN.png";
